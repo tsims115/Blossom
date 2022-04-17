@@ -1,7 +1,10 @@
 import pygame
 import time
+import random
+import math
 import pygame_assets as assets
 from sys import exit
+
 """Simple game with a goal to catch flowers and avoid bad stuff"""
 
 
@@ -9,12 +12,13 @@ class MainGame:
     def __init__(self):
         """initializes game"""
         pygame.init()
+        self.start_time = pygame.time.get_ticks()
         """title bar"""
         pygame.display.set_caption("Welcome to Blossom \
         by: Tim and Trenton")
         """Create Window"""
-        SCR_WIDTH, SCR_HEIGHT = 800, 600
-        self.WINDOW = pygame.display.set_mode((SCR_WIDTH, SCR_HEIGHT))
+        self.SCR_WIDTH, self.SCR_HEIGHT = 800, 600
+        self.WINDOW = pygame.display.set_mode((self.SCR_WIDTH, self.SCR_HEIGHT))
         """Create Ground"""
         GROUND_WIDTH, GROUND_HEIGHT = 800, 200
         self.GROUND_SURFACE = pygame.Surface((GROUND_WIDTH, GROUND_HEIGHT))
@@ -38,6 +42,52 @@ class MainGame:
             img = pygame.transform.scale(assets.load.image('RunLeft ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE)
             self.run_left.append(img)
         self.rect = pygame.Rect(400, 400, DEFAULT_SIZE[0] - 100, DEFAULT_SIZE[1])
+        """create fruit"""
+        self.FRUIT_SPEED = 5
+        self.fruit_x = random.randrange(0, self.SCR_WIDTH)
+        # fruit_y = -50
+        self.cherry = []
+        CHERRY_SIZE = (64,64)
+        for i in range (0, 16):
+            self.cherry.append(pygame.transform.scale(assets.load.image('cherry ({}).png'.format(i)).convert_alpha(),CHERRY_SIZE))
+        self.cherry_rect = pygame.Rect(self.fruit_x, -50, DEFAULT_SIZE[0] - 100, DEFAULT_SIZE[1])
+        """setup bee"""
+        self.bee_timer = 10
+        self.bee_spawn = False
+        self.bee_speed = 8
+        self.bee_x = random.randrange(0, self.SCR_WIDTH)
+        self.bee = []
+        bee_size = (64, 64)
+        for i in range (1, 8):
+            self.bee.append(pygame.transform.scale(assets.load.image('bee ({}).png'.format(i)).convert_alpha(), bee_size))
+        self.bee_rect = pygame.Rect(self.bee_x, -50, DEFAULT_SIZE[0] - 100, DEFAULT_SIZE[1])
+
+    def fruit_movement(self):
+        self.WINDOW.blit(self.cherry[self.walk_count], (self.cherry_rect.x, self.cherry_rect.y))
+        self.cherry_rect.y += self.FRUIT_SPEED
+        if self.cherry_rect.y > self.SCR_HEIGHT:
+            self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH)
+            self.cherry_rect.y = -50
+
+    def bee_movement(self):
+        """Handles bee movement and spawning"""
+        print((pygame.time.get_ticks() - self.start_time) % 100)
+        if ((pygame.time.get_ticks() - self.start_time) % 100 == 0) and not self.bee_spawn:
+            if self.bee_spawn:
+                self.bee_spawn = False
+                self.bee_timer = random.randrange(3, 11)
+            else:
+                self.bee_rect.x = random.randrange(0, self.SCR_WIDTH)
+                self.bee_rect.y = -50
+                self.bee_spawn = True
+        if self.bee_spawn:
+            self.WINDOW.blit(self.bee[0], (self.bee_rect.x, self.bee_rect.y))
+            self.bee_rect.y += self.bee_speed
+            if self.bee_rect.y > self.SCR_HEIGHT:
+                self.bee_spawn = False
+        
+
+        
 
     def player_movement(self, keys_pressed):
         """Handles player movemnet"""
@@ -47,9 +97,13 @@ class MainGame:
         if keys_pressed[pygame.K_LEFT]:
             self.rect.x += -10
             self.player_state = self.run_left
+            if self.rect.x < 0:
+                self.rect.x = 0
         if keys_pressed[pygame.K_RIGHT]:
             self.rect.x += 10
             self.player_state = self.run_right
+            if self.rect.x > 690:
+                self.rect.x = 690
         if time.time() - self.walk_frame_start > 0.1:
             if self.walk_count < 14:
                 self.walk_count += 1
@@ -61,6 +115,8 @@ class MainGame:
         self.WINDOW.fill(self.SKY_COLOR)
         self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
         self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+        self.fruit_movement()
+        self.bee_movement()
         pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
         pygame.display.update()
 

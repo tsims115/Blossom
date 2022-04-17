@@ -6,6 +6,8 @@ from sys import exit
 
 """init pygame"""
 pygame.init()
+global idle_count
+
 
 """set frames per second"""
 FPS = 60
@@ -41,8 +43,8 @@ def draw_window():
     WINDOW.blit(GROUND_SURFACE,(0,500))
     WINDOW.blit(idle[idle_count], (400, 400))
     idle_frame_start = 0
-    if time.time() - idle_frame_start > 0.5:
-        if idle_count < 14:
+    if time.time() - idle_frame_start > 0.8:
+        if idle_count <= 14:
             idle_count += 1
         else:
             idle_count = 0
@@ -63,6 +65,7 @@ class GameState():
 if __name__ == "__main__":
     clock = pygame.time.Clock()
     running = True
+    idle_count=0
     """Main game loop"""
     while (running):
         clock.tick(FPS)
