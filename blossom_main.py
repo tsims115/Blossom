@@ -34,13 +34,15 @@ class MainGame:
         for i in range(1, 16):
             self.run_right.append(pygame.transform.scale(assets.load.image('Run ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE))
         for i in range(1, 16):
-            self.idle.append(pygame.transform.scale(assets.load.image('Run ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE))
+            img = pygame.transform.scale(assets.load.image('Run ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE)
+            img = pygame.transform.flip(img, True, False)
+            self.run_left.append(img)
 
     def player_movement(self, keys_pressed):
         """Handles player movemnet"""
         if keys_pressed[pygame.K_LEFT]:
             self.x += -10
-            self.player_state = self.run_right
+            self.player_state = self.run_left
         if keys_pressed[pygame.K_RIGHT]:
             self.x += 10
             self.player_state = self.run_right
@@ -66,15 +68,11 @@ class MainGame:
             for event in event_list:
                 """ player exit"""
                 if event.type == pygame.QUIT:
-                    self.quit_game()
+                    pygame.quit()
+                    exit()
         keys_pressed = pygame.key.get_pressed()
         self.player_movement(keys_pressed)
         self.draw_window()
-
-    def quit_game(self):
-        """quits the game"""
-        pygame.quit()
-        exit()
 
 
 if __name__ == "__main__":
