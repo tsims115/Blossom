@@ -34,7 +34,7 @@ class MainGame:
         self.run_right = []
         self.player_state = self.idle
         self.walk_frame_start = 0
-        self.cur_state = self.player_state
+        self.cur_player_state = self.player_state
         for i in range(1, 16):
             self.idle.append(pygame.transform.scale(assets.load.image('Idle ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE))
         for i in range(1, 16):
@@ -88,8 +88,8 @@ class MainGame:
 
     def player_movement(self, keys_pressed):
         """Handles player movemnet"""
-        if self.cur_state is not self.player_state:
-            self.cur_state = self.player_state
+        if self.cur_player_state is not self.player_state:
+            self.cur_player_state = self.player_state
             self.walk_count = 0
         if keys_pressed[pygame.K_LEFT]:
             self.rect.x += -10
@@ -114,6 +114,16 @@ class MainGame:
             self.intro()
         if self.game_state == "level_one":
             self.level_one()
+        if self.game_state == "game_exit":
+            self.game_exit()
+
+    def draw_timer(self):
+        """Displays timer in the top right"""
+        font = pygame.font.Font('freesansbold.ttf', 16)
+        text = font.render("Timer: {}".format(self.current_time), True, (255, 255, 255))
+        self.WINDOW.blit(text, (10, 10))
+        if self.current_time == 0:
+            self.game_state = "game_exit"
 
     def draw_intro_window(self):
         """Draws Window for intro"""
@@ -131,6 +141,7 @@ class MainGame:
         self.WINDOW.fill(self.SKY_COLOR)
         self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
         self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+        self.draw_timer()
         self.fruit_movement()
         self.bee_movement()
         pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
@@ -147,6 +158,7 @@ class MainGame:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.game_state = "level_one"
+                        self.start_ticks = pygame.time.get_ticks()
         self.draw_intro_window()
 
     def level_one(self):
@@ -160,10 +172,26 @@ class MainGame:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+        self.current_time = 60 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
         keys_pressed = pygame.key.get_pressed()
         self.player_movement(keys_pressed)
         self.draw_one_window()
 
+    def game_exit(self):
+        """Displays Exit screen"""
+        self.WINDOW.fill(self.SKY_COLOR)
+        self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
+        self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render("Great Job!", True, (255, 255, 255))
+        self.WINDOW.blit(text, (150, 250))
+        event_list = pygame.event.get()
+        for event in event_list:
+                """ player exit"""
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+                    pygame.quit()
+                    exit()
+        pygame.display.update()
 
 if __name__ == "__main__":
     FPS = 60
