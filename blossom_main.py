@@ -29,17 +29,20 @@ class MainGame:
         self.run_right = []
         self.player_state = self.idle
         self.walk_frame_start = 0
+        self.cur_state = self.player_state
         for i in range(1, 16):
             self.idle.append(pygame.transform.scale(assets.load.image('Idle ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE))
         for i in range(1, 16):
-            self.run_right.append(pygame.transform.scale(assets.load.image('Run ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE))
+            self.run_right.append(pygame.transform.scale(assets.load.image('RunRight ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE))
         for i in range(1, 16):
-            img = pygame.transform.scale(assets.load.image('Run ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE)
-            img = pygame.transform.flip(img, True, False)
+            img = pygame.transform.scale(assets.load.image('RunLeft ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE)
             self.run_left.append(img)
 
     def player_movement(self, keys_pressed):
         """Handles player movemnet"""
+        if self.cur_state is not self.player_state:
+            self.cur_state = self.player_state
+            self.walk_count = 0
         if keys_pressed[pygame.K_LEFT]:
             self.x += -10
             self.player_state = self.run_left
