@@ -37,6 +37,7 @@ class MainGame:
         for i in range(1, 16):
             img = pygame.transform.scale(assets.load.image('RunLeft ({}).png'.format(i)).convert_alpha(), DEFAULT_SIZE)
             self.run_left.append(img)
+        self.rect = pygame.Rect(400, 400, DEFAULT_SIZE[0] - 100, DEFAULT_SIZE[1])
 
     def player_movement(self, keys_pressed):
         """Handles player movemnet"""
@@ -44,10 +45,10 @@ class MainGame:
             self.cur_state = self.player_state
             self.walk_count = 0
         if keys_pressed[pygame.K_LEFT]:
-            self.x += -10
+            self.rect.x += -10
             self.player_state = self.run_left
         if keys_pressed[pygame.K_RIGHT]:
-            self.x += 10
+            self.rect.x += 10
             self.player_state = self.run_right
         if time.time() - self.walk_frame_start > 0.1:
             if self.walk_count < 14:
@@ -59,7 +60,8 @@ class MainGame:
     def draw_window(self):
         self.WINDOW.fill(self.SKY_COLOR)
         self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
-        self.WINDOW.blit(self.player_state[self.walk_count], (self.x,400))
+        self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+        pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
         pygame.display.update()
 
     def level_one(self):
