@@ -13,6 +13,7 @@ class MainGame:
         """initializes game"""
         pygame.init()
         self.start_time = pygame.time.get_ticks()
+        self.game_state = "intro"
         """title bar"""
         pygame.display.set_caption("Welcome to Blossom \
         by: Tim and Trenton")
@@ -71,7 +72,6 @@ class MainGame:
 
     def bee_movement(self):
         """Handles bee movement and spawning"""
-        print((pygame.time.get_ticks() - self.start_time) % 100)
         if ((pygame.time.get_ticks() - self.start_time) % 100 == 0) and not self.bee_spawn:
             if self.bee_spawn:
                 self.bee_spawn = False
@@ -85,9 +85,6 @@ class MainGame:
             self.bee_rect.y += self.bee_speed
             if self.bee_rect.y > self.SCR_HEIGHT:
                 self.bee_spawn = False
-        
-
-        
 
     def player_movement(self, keys_pressed):
         """Handles player movemnet"""
@@ -111,7 +108,26 @@ class MainGame:
                 self.walk_count = 0
             self.walk_frame_start = time.time()
 
-    def draw_window(self):
+    def state_manager(self):
+        """Manages state and what level the game is on"""
+        if self.game_state == "intro":
+            self.intro()
+        if self.game_state == "level_one":
+            self.level_one()
+
+    def draw_intro_window(self):
+        """Draws Window for intro"""
+        self.WINDOW.fill(self.SKY_COLOR)
+        self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
+        self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render("Ready?(Press space bar to start)", True, (255, 255, 255))
+        self.WINDOW.blit(text, (150, 250))
+        pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
+        pygame.display.update()
+
+    def draw_one_window(self):
+        """Window for level one"""
         self.WINDOW.fill(self.SKY_COLOR)
         self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
         self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
@@ -119,6 +135,19 @@ class MainGame:
         self.bee_movement()
         pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
         pygame.display.update()
+
+    def intro(self):
+        """Start screen"""
+        event_list = pygame.event.get()
+        for event in event_list:
+                """ player exit"""
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.game_state = "level_one"
+        self.draw_intro_window()
 
     def level_one(self):
         """First level of the game"""
@@ -133,7 +162,7 @@ class MainGame:
                     exit()
         keys_pressed = pygame.key.get_pressed()
         self.player_movement(keys_pressed)
-        self.draw_window()
+        self.draw_one_window()
 
 
 if __name__ == "__main__":
@@ -145,4 +174,4 @@ if __name__ == "__main__":
     """Main game loop"""
     while (running):
         clock.tick(FPS)
-        game.level_one()
+        game.state_manager()
