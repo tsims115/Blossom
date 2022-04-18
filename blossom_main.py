@@ -13,7 +13,9 @@ class MainGame:
         """initializes game"""
         pygame.init()
         self.start_time = pygame.time.get_ticks()
+        print(self.start_time // 1000)
         self.game_state = "intro"
+        self.score = 0
         """title bar"""
         pygame.display.set_caption("Welcome to Blossom \
         by: Tim and Trenton")
@@ -48,42 +50,56 @@ class MainGame:
         self.fruit_x = random.randrange(0, self.SCR_WIDTH)
         # fruit_y = -50
         self.cherry = []
-        CHERRY_SIZE = (64,64)
+        self.CHERRY_SIZE = (64,64)
         for i in range (0, 16):
-            self.cherry.append(pygame.transform.scale(assets.load.image('cherry ({}).png'.format(i)).convert_alpha(),CHERRY_SIZE))
-        self.cherry_rect = pygame.Rect(self.fruit_x, -50, DEFAULT_SIZE[0] - 100, DEFAULT_SIZE[1])
+            self.cherry.append(pygame.transform.scale(assets.load.image('cherry ({}).png'.format(i)).convert_alpha(),self.CHERRY_SIZE))
+        self.cherry_rect = pygame.Rect(self.fruit_x, -50, self.CHERRY_SIZE[0], self.CHERRY_SIZE[1] - 50)
         """setup bee"""
         self.bee_timer = 10
         self.bee_spawn = False
         self.bee_speed = 8
         self.bee_x = random.randrange(0, self.SCR_WIDTH)
         self.bee = []
-        bee_size = (64, 64)
+        self.BEE_SIZE = (64, 64)
         for i in range (1, 8):
-            self.bee.append(pygame.transform.scale(assets.load.image('bee ({}).png'.format(i)).convert_alpha(), bee_size))
-        self.bee_rect = pygame.Rect(self.bee_x, -50, DEFAULT_SIZE[0] - 100, DEFAULT_SIZE[1])
+            self.bee.append(pygame.transform.scale(assets.load.image('bee ({}).png'.format(i)).convert_alpha(), self.BEE_SIZE))
+        self.bee_rect = pygame.Rect(self.bee_x, -50, self.BEE_SIZE[0] - 100, self.BEE_SIZE[1])
+        """Create Cloud"""
+        self.CLOUD_SIZE = self.BEE_SIZE
+        self.cloud = pygame.transform.scale(assets.load.image('cloud.png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
+    def detect_collisions(self):
+        """Detects collisions and updates the score accordingly"""
+        if self.rect.colliderect(self.cherry_rect):
+            self.cherry_rect.y = -50
+            self.score += 1
+            self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH)
+        if self.rect.colliderect(self.bee_rect) and (self.bee_rect.y < self.SCR_HEIGHT - 115):
+            self.bee_spawn = False
+            self.bee_rect.y = -50
+            self.bee_rect.x = random.randrange(0, self.SCR_WIDTH)
+            if self.score - 2 < 0:
+                self.score = 0
+            else:
+                self.score += -2
+
 
     def fruit_movement(self):
         self.WINDOW.blit(self.cherry[self.walk_count], (self.cherry_rect.x, self.cherry_rect.y))
         self.cherry_rect.y += self.FRUIT_SPEED
         if self.cherry_rect.y > self.SCR_HEIGHT:
-            self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH)
+            self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH - 100)
             self.cherry_rect.y = -50
 
     def bee_movement(self):
         """Handles bee movement and spawning"""
         if ((pygame.time.get_ticks() - self.start_time) % 100 == 0) and not self.bee_spawn:
-            if self.bee_spawn:
-                self.bee_spawn = False
-                self.bee_timer = random.randrange(3, 11)
-            else:
-                self.bee_rect.x = random.randrange(0, self.SCR_WIDTH)
-                self.bee_rect.y = -50
-                self.bee_spawn = True
+            self.bee_rect.x = random.randrange(0, self.SCR_WIDTH - 100)
+            self.bee_rect.y = -50
+            self.bee_spawn = True
         if self.bee_spawn:
             self.WINDOW.blit(self.bee[0], (self.bee_rect.x, self.bee_rect.y))
             self.bee_rect.y += self.bee_speed
-            if self.bee_rect.y > self.SCR_HEIGHT:
+            if self.bee_rect.y > self.SCR_HEIGHT - 100:
                 self.bee_spawn = False
 
     def player_movement(self, keys_pressed):
@@ -117,34 +133,48 @@ class MainGame:
         if self.game_state == "game_exit":
             self.game_exit()
 
+    def draw_score(self):
+        """Draws and controls the score on the screen"""
+        font = pygame.font.Font('freesansbold.ttf', 16)
+        text = font.render("Score: {}".format(self.score), True, (255, 255, 255))
+        self.WINDOW.blit(text, (710, 10))
+        if self.score < 0:
+            self.score = 0
+
     def draw_timer(self):
         """Displays timer in the top right"""
+        self.current_time = 60 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
         font = pygame.font.Font('freesansbold.ttf', 16)
         text = font.render("Timer: {}".format(self.current_time), True, (255, 255, 255))
         self.WINDOW.blit(text, (10, 10))
         if self.current_time == 0:
             self.game_state = "game_exit"
 
-    def draw_intro_window(self):
-        """Draws Window for intro"""
+    def draw_background(self):
+        """Draws the basic background"""
         self.WINDOW.fill(self.SKY_COLOR)
         self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
         self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+
+    def draw_intro_window(self):
+        """Draws Window for intro"""
+        self.draw_background()
         font = pygame.font.Font('freesansbold.ttf', 32)
         text = font.render("Ready?(Press space bar to start)", True, (255, 255, 255))
         self.WINDOW.blit(text, (150, 250))
         pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
+        #pygame.draw.rect(self.WINDOW, (0, 0, 0), self.cherry_rect, 4)
         pygame.display.update()
 
     def draw_one_window(self):
         """Window for level one"""
-        self.WINDOW.fill(self.SKY_COLOR)
-        self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
-        self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+        self.draw_background()
         self.draw_timer()
+        self.draw_score()
         self.fruit_movement()
         self.bee_movement()
-        pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
+        # """pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)"""
+        #pygame.draw.rect(self.WINDOW, (0, 0, 0), self.cherry_rect, 4)
         pygame.display.update()
 
     def intro(self):
@@ -172,25 +202,27 @@ class MainGame:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-        self.current_time = 60 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
         keys_pressed = pygame.key.get_pressed()
         self.player_movement(keys_pressed)
+        self.detect_collisions()
         self.draw_one_window()
 
     def game_exit(self):
         """Displays Exit screen"""
-        self.WINDOW.fill(self.SKY_COLOR)
-        self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
-        self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
+        self.draw_background()
         font = pygame.font.Font('freesansbold.ttf', 32)
-        text = font.render("Great Job!", True, (255, 255, 255))
+        text = font.render("Score: {}".format(self.score), True, (255, 255, 255))
         self.WINDOW.blit(text, (150, 250))
         event_list = pygame.event.get()
         for event in event_list:
                 """ player exit"""
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+                if (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+                    self.game_state = "intro"
+                    self.start_ticks = pygame.time.get_ticks()
+                    self.score = 0
         pygame.display.update()
 
 if __name__ == "__main__":
