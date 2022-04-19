@@ -64,9 +64,15 @@ class MainGame:
         for i in range (1, 8):
             self.bee.append(pygame.transform.scale(assets.load.image('bee ({}).png'.format(i)).convert_alpha(), self.BEE_SIZE))
         self.bee_rect = pygame.Rect(self.bee_x, -50, self.BEE_SIZE[0] - 100, self.BEE_SIZE[1])
-        """Create Cloud"""
-        self.CLOUD_SIZE = self.BEE_SIZE
-        self.cloud = pygame.transform.scale(assets.load.image('cloud.png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
+        """Create Clouds"""
+        self.CLOUD_SIZE = (512, 256)
+        self.cloud_speed = 1
+        self.cloud_x = 850
+        self.cloud_y = 0
+        self.cloud = pygame.transform.scale(assets.load.image('cloud (1).png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
+        self.cloud_rect = pygame.Rect(self.cloud_x, self.cloud_y, self.CLOUD_SIZE[0], self.CLOUD_SIZE[1])
+        self.cloud_2 = pygame.transform.scale(assets.load.image('cloud (3).png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
+        self.cloud_rect_2 = pygame.Rect(self.cloud_x + 500, self.cloud_y - 50, self.CLOUD_SIZE[0], self.CLOUD_SIZE[1])
     def detect_collisions(self):
         """Detects collisions and updates the score accordingly"""
         if self.rect.colliderect(self.cherry_rect):
@@ -89,6 +95,17 @@ class MainGame:
         if self.cherry_rect.y > self.SCR_HEIGHT:
             self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH - 100)
             self.cherry_rect.y = -50
+
+    def cloud_movement(self):
+        self.WINDOW.blit(self.cloud, (self.cloud_rect.x, self.cloud_rect.y))
+        self.cloud_rect.x -= self.cloud_speed
+        if self.cloud_rect.x < -1024:
+            self.cloud_rect.x = 850
+            self.cloud_rect.y = random.randrange(0, 50)
+        self.WINDOW.blit(self.cloud_2, (self.cloud_rect_2.x - 50, self.cloud_rect_2.y))
+        self.cloud_rect_2.x = self.cloud_rect.x + 512
+
+
 
     def bee_movement(self):
         """Handles bee movement and spawning"""
@@ -171,6 +188,7 @@ class MainGame:
         self.draw_background()
         self.draw_timer()
         self.draw_score()
+        self.cloud_movement()
         self.fruit_movement()
         self.bee_movement()
         # """pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)"""
