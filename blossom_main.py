@@ -4,6 +4,7 @@ import random
 import math
 import pygame_assets as assets
 from sys import exit
+import shelve
 
 """Simple game with a goal to catch flowers and avoid bad stuff"""
 
@@ -48,7 +49,6 @@ class MainGame:
         """create fruit"""
         self.FRUIT_SPEED = 5
         self.fruit_x = random.randrange(0, self.SCR_WIDTH)
-        # fruit_y = -50
         self.cherry = []
         self.CHERRY_SIZE = (64,64)
         for i in range (0, 16):
@@ -80,6 +80,8 @@ class MainGame:
         self.game_start_sound = assets.load.sound('game_start.ogg')
         self.bee_sting_sound = assets.load.sound('grunt.wav')
         self.coin_sound = assets.load.sound('coin.wav')
+        """Scoring"""
+        self.high_score = 0
 
     def detect_collisions(self):
         """Detects collisions and updates the score accordingly"""
@@ -173,12 +175,14 @@ class MainGame:
 
     def draw_timer(self):
         """Displays timer in the top right"""
-        self.current_time = 60 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
+        self.current_time = 15 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
         font = pygame.font.Font('freesansbold.ttf', 16)
         text = font.render("Timer: {}".format(self.current_time), True, (255, 255, 255))
         self.WINDOW.blit(text, (10, 10))
         if self.current_time == 0:
             self.game_state = "game_exit"
+            self.save_score()
+            pygame.mixer.music.stop()
 
     def draw_background(self):
         """Draws the basic background"""
@@ -189,9 +193,15 @@ class MainGame:
     def draw_intro_window(self):
         """Draws Window for intro"""
         self.draw_background()
-        font = pygame.font.Font('freesansbold.ttf', 32)
-        text = font.render("Ready?(Press space bar to start)", True, (255, 255, 255))
-        self.WINDOW.blit(text, (150, 250))
+        font = pygame.font.Font('assets/fonts/Nebulo.ttf', 75)
+        text = font.render("CHERRY BLOSSOM", True, (255, 15, 5))
+        startfont = pygame.font.Font('freesansbold.ttf', 25)
+        starttext = startfont.render('(PRESS SPACE TO START)', True, (255, 255, 255))
+        score_font = pygame.font.Font('freesansbold.ttf', 25)
+        score_text = score_font.render('High Score: ' + str(self.high_score), True, (255, 255, 255))
+        self.WINDOW.blit(text, (100, 200))
+        self.WINDOW.blit(starttext, (200, 300))
+        self.WINDOW.blit(score_text, (615, 10))
         #pygame.draw.rect(self.WINDOW, (0, 0, 0), self.cherry_rect, 4)
         pygame.display.update()
 
@@ -203,8 +213,6 @@ class MainGame:
         self.cloud_movement()
         self.fruit_movement()
         self.bee_movement()
-        # """pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)"""
-        #pygame.draw.rect(self.WINDOW, (0, 0, 0), self.cherry_rect, 4)
         pygame.display.update()
 
     def intro(self):
@@ -217,11 +225,12 @@ class MainGame:
                     exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
+                        self.game_start_sound.play()
+                        time.sleep(0.5)
                         self.game_state = "level_one"
                         self.start_ticks = pygame.time.get_ticks()
-                        self.game_start_sound.play()
                         pygame.mixer.music.play()
-                        pygame.mixer.music.set_volume(0.3)
+                        pygame.mixer.music.set_volume(0.2)
         self.draw_intro_window()
 
     def level_one(self):
@@ -258,11 +267,30 @@ class MainGame:
                     self.score = 0
         pygame.display.update()
 
+
+
+
+    def load_score(self):
+        """loads the score"""
+        with open('score.txt', 'r') as f:
+            score = f.read()
+            self.high_score = int(score)
+
+    def save_score(self):
+        """Saves the new highscore if there was one"""
+        if self.score > self.high_score:
+            self.high_score = self.score
+            with open('score.txt', 'w') as f:
+                f.write(str(self.high_score))
+
+
+
 if __name__ == "__main__":
     FPS = 60
     clock = pygame.time.Clock()
     running = True
     game = MainGame()
+    game.load_score()
 
     """Main game loop"""
     while (running):
