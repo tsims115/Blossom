@@ -32,6 +32,6 @@ python3 blossom_main.py
 ```
 
 ## Authors
-Tim Simms - [Github](www.github.com/TimSimms84)
+Tim Simms - [Github](http://www.github.com/TimSimms84)
 
-Trenton Sims - [Github](www.github.com/tsims115)
+Trenton Sims - [Github](http://www.github.com/tsims115)
