@@ -12,6 +12,7 @@ class MainGame:
     def __init__(self):
         """initializes game"""
         pygame.init()
+        pygame.mixer.init()
         self.start_time = pygame.time.get_ticks()
         print(self.start_time // 1000)
         self.game_state = "intro"
@@ -73,13 +74,21 @@ class MainGame:
         self.cloud_rect = pygame.Rect(self.cloud_x, self.cloud_y, self.CLOUD_SIZE[0], self.CLOUD_SIZE[1])
         self.cloud_2 = pygame.transform.scale(assets.load.image('cloud (3).png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
         self.cloud_rect_2 = pygame.Rect(self.cloud_x + 500, self.cloud_y - 50, self.CLOUD_SIZE[0], self.CLOUD_SIZE[1])
+        """Create Music and sound effects"""
+        self.music = assets.load.music('Strike the Earth!.mp3')
+        self.game_start_sound = assets.load.sound('game_start.ogg')
+        self.bee_sting_sound = assets.load.sound('pop.flac')
+        self.coin_sound = assets.load.sound('coin.wav')
+
     def detect_collisions(self):
         """Detects collisions and updates the score accordingly"""
         if self.rect.colliderect(self.cherry_rect):
+            self.coin_sound.play()
             self.cherry_rect.y = -50
             self.score += 1
             self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH)
         if self.rect.colliderect(self.bee_rect) and (self.bee_rect.y < self.SCR_HEIGHT - 115):
+            self.bee_sting_sound.play()
             self.bee_spawn = False
             self.bee_rect.y = -50
             self.bee_rect.x = random.randrange(0, self.SCR_WIDTH)
@@ -179,7 +188,6 @@ class MainGame:
         font = pygame.font.Font('freesansbold.ttf', 32)
         text = font.render("Ready?(Press space bar to start)", True, (255, 255, 255))
         self.WINDOW.blit(text, (150, 250))
-        pygame.draw.rect(self.WINDOW, (0, 0, 0), self.rect, 4)
         #pygame.draw.rect(self.WINDOW, (0, 0, 0), self.cherry_rect, 4)
         pygame.display.update()
 
@@ -207,6 +215,9 @@ class MainGame:
                     if event.key == pygame.K_SPACE:
                         self.game_state = "level_one"
                         self.start_ticks = pygame.time.get_ticks()
+                        self.game_start_sound.play()
+                        pygame.mixer.music.play()
+                        pygame.mixer.music.set_volume(0.3)
         self.draw_intro_window()
 
     def level_one(self):
