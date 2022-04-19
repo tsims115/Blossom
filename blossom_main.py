@@ -18,7 +18,7 @@ class MainGame:
         self.game_state = "intro"
         self.score = 0
         """title bar"""
-        pygame.display.set_caption("Welcome to Blossom \
+        pygame.display.set_caption("Welcome to Cherry Blossom\
         by: Tim and Trenton")
         """Create Window"""
         self.SCR_WIDTH, self.SCR_HEIGHT = 800, 600
@@ -89,7 +89,7 @@ class MainGame:
             self.coin_sound.play()
             self.cherry_rect.y = -50
             self.score += 1
-            self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH)
+            self.cherry_rect.x = random.randrange(0, 775)
         if self.rect.colliderect(self.bee_rect) and (self.bee_rect.y < self.SCR_HEIGHT - 115):
             self.bee_sting_sound.play()
             self.bee_spawn = False
@@ -105,7 +105,7 @@ class MainGame:
         self.WINDOW.blit(self.cherry[self.walk_count], (self.cherry_rect.x, self.cherry_rect.y))
         self.cherry_rect.y += self.FRUIT_SPEED
         if self.cherry_rect.y > self.SCR_HEIGHT:
-            self.cherry_rect.x = random.randrange(0, self.SCR_WIDTH - 100)
+            self.cherry_rect.x = random.randrange(0, 775)
             self.cherry_rect.y = -50
 
     def cloud_movement(self):
@@ -253,7 +253,9 @@ class MainGame:
         """Displays Exit screen"""
         self.draw_background()
         font = pygame.font.Font('freesansbold.ttf', 32)
-        text = font.render("Score: {}".format(self.score), True, (255, 255, 255))
+        highscoretext = font.render("High Score: {}".format(self.high_score), True, (255, 255, 255))
+        text = font.render("Your Score: {}".format(self.score), True, (255, 255, 255))
+        self.WINDOW.blit(highscoretext, (150, 200))
         self.WINDOW.blit(text, (150, 250))
         event_list = pygame.event.get()
         for event in event_list:
@@ -272,9 +274,12 @@ class MainGame:
 
     def load_score(self):
         """loads the score"""
-        with open('score.txt', 'r') as f:
+        with open('score.txt', 'w+') as f:
             score = f.read()
-            self.high_score = int(score)
+            try:
+                self.high_score = int(score)
+            except:
+                self.high_score = 0
 
     def save_score(self):
         """Saves the new highscore if there was one"""
