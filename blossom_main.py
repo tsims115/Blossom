@@ -14,7 +14,6 @@ class MainGame:
         pygame.init()
         pygame.mixer.init()
         self.start_time = pygame.time.get_ticks()
-        print(self.start_time // 1000)
         self.game_state = "intro"
         self.score = 0
         """title bar"""
@@ -72,12 +71,14 @@ class MainGame:
         self.cloud_y = 0
         self.cloud = pygame.transform.scale(assets.load.image('cloud (1).png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
         self.cloud_rect = pygame.Rect(self.cloud_x, self.cloud_y, self.CLOUD_SIZE[0], self.CLOUD_SIZE[1])
-        self.cloud_2 = pygame.transform.scale(assets.load.image('cloud (3).png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
+        self.cloud_2 = pygame.transform.scale(assets.load.image('cloud (2).png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
         self.cloud_rect_2 = pygame.Rect(self.cloud_x + 500, self.cloud_y - 50, self.CLOUD_SIZE[0], self.CLOUD_SIZE[1])
+        self.cloud_3 = pygame.transform.scale(assets.load.image('cloud (3).png'.format(i)).convert_alpha(), self.CLOUD_SIZE)
+        self.cloud_rect_3 = pygame.Rect(self.cloud_x + 850, self.cloud_y, self.CLOUD_SIZE[0], self.CLOUD_SIZE[1])
         """Create Music and sound effects"""
         self.music = assets.load.music('Strike the Earth!.mp3')
         self.game_start_sound = assets.load.sound('game_start.ogg')
-        self.bee_sting_sound = assets.load.sound('pop.flac')
+        self.bee_sting_sound = assets.load.sound('grunt.wav')
         self.coin_sound = assets.load.sound('coin.wav')
 
     def detect_collisions(self):
@@ -113,7 +114,10 @@ class MainGame:
             self.cloud_rect.y = random.randrange(0, 50)
         self.WINDOW.blit(self.cloud_2, (self.cloud_rect_2.x - 50, self.cloud_rect_2.y))
         self.cloud_rect_2.x = self.cloud_rect.x + 512
-
+        self.WINDOW.blit(self.cloud_3, (self.cloud_rect_3.x, self.cloud_rect_3.y))
+        self.cloud_rect_3.x -= self.cloud_speed
+        if self.cloud_rect_3.x < -1024:
+            self.cloud_rect_3.x = 2000
 
 
     def bee_movement(self):
