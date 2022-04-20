@@ -82,6 +82,11 @@ class MainGame:
         self.coin_sound = assets.load.sound('coin.wav')
         """Scoring"""
         self.high_score = 0
+        """background trees"""
+        self.TREE_SIZE = (512, 256)
+        self.tree_1_x = 750
+        self.tree_1_y = 100
+        self.tree_1 = pygame.transform.scale(assets.load.image('Tree (1).png'.format(i)).convert_alpha(), self.TREE_SIZE)
 
     def detect_collisions(self):
         """Detects collisions and updates the score accordingly"""
@@ -175,7 +180,7 @@ class MainGame:
 
     def draw_timer(self):
         """Displays timer in the top right"""
-        self.current_time = 15 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
+        self.current_time = 5 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
         font = pygame.font.Font('freesansbold.ttf', 16)
         text = font.render("Timer: {}".format(self.current_time), True, (255, 255, 255))
         self.WINDOW.blit(text, (10, 10))
@@ -188,10 +193,11 @@ class MainGame:
         """Draws the basic background"""
         self.WINDOW.fill(self.SKY_COLOR)
         self.WINDOW.blit(self.GROUND_SURFACE,(0,500))
+        self.WINDOW.blit(self.tree_1,(100, 300))
         self.WINDOW.blit(self.player_state[self.walk_count], (self.rect.x, self.rect.y))
 
     def draw_intro_window(self):
-        """Draws Window for intro"""
+        """Draws Window for intro"""500
         self.draw_background()
         font = pygame.font.Font('assets/fonts/Nebulo.ttf', 75)
         text = font.render("CHERRY BLOSSOM", True, (255, 15, 5))
