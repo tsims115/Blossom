@@ -5,6 +5,7 @@ import math
 import pygame_assets as assets
 from sys import exit
 import shelve
+import os
 
 """Simple game with a goal to catch flowers and avoid bad stuff"""
 
@@ -283,7 +284,7 @@ class MainGame:
 
     def load_score(self):
         """loads the score"""
-        with open('score.txt', 'w+') as f:
+        with open('score.txt', 'r+') as f:
             score = f.read()
             try:
                 self.high_score = int(score)
@@ -294,7 +295,7 @@ class MainGame:
         """Saves the new highscore if there was one"""
         if self.score > self.high_score:
             self.high_score = self.score
-            with open('score.txt', 'w') as f:
+            with open('score.txt', 'w+') as f:
                 f.write(str(self.high_score))
 
 
