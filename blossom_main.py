@@ -175,7 +175,7 @@ class MainGame:
 
     def draw_timer(self):
         """Displays timer in the top right"""
-        self.current_time = 15 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
+        self.current_time = 5 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
         font = pygame.font.Font('freesansbold.ttf', 16)
         text = font.render("Timer: {}".format(self.current_time), True, (255, 255, 255))
         self.WINDOW.blit(text, (10, 10))
@@ -255,8 +255,11 @@ class MainGame:
         font = pygame.font.Font('freesansbold.ttf', 32)
         highscoretext = font.render("High Score: {}".format(self.high_score), True, (255, 255, 255))
         text = font.render("Your Score: {}".format(self.score), True, (255, 255, 255))
-        self.WINDOW.blit(highscoretext, (150, 200))
-        self.WINDOW.blit(text, (150, 250))
+        font = pygame.font.Font('assets/fonts/Nebulo.ttf', 75)
+        cherrytext = font.render("Cherry Nice".format(self.high_score), True, (255, 15, 5))
+        self.WINDOW.blit(cherrytext, (200, 100))
+        self.WINDOW.blit(highscoretext, (300, 200))
+        self.WINDOW.blit(text, (300, 250))
         event_list = pygame.event.get()
         for event in event_list:
                 """ player exit"""
