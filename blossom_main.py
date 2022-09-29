@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+import asyncio
 import pygame
 import time
 import random
@@ -181,7 +183,7 @@ class MainGame:
 
     def draw_timer(self):
         """Displays timer in the top right"""
-        self.current_time = 5 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
+        self.current_time = 60 - ((pygame.time.get_ticks()-self.start_ticks)//1000)
         font = pygame.font.Font('freesansbold.ttf', 16)
         text = font.render("Timer: {}".format(self.current_time), True, (255, 255, 255))
         self.WINDOW.blit(text, (10, 10))
@@ -299,8 +301,7 @@ class MainGame:
                 f.write(str(self.high_score))
 
 
-
-if __name__ == "__main__":
+async def main():
     FPS = 60
     clock = pygame.time.Clock()
     running = True
@@ -311,3 +312,8 @@ if __name__ == "__main__":
     while (running):
         clock.tick(FPS)
         game.state_manager()
+        await asyncio.sleep(0)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
